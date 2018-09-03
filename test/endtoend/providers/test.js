@@ -68,4 +68,20 @@ const signIntoGoogle = (browser) => {
   browser.waitForVisible('input[name=password]')
   browser.setValue('input[name=password]', process.env.UPPY_GOOGLE_PASSWORD)
   browser.click('#passwordNext')
+  // if suspicious login was detected, the window will remain unclosed
+  // so we have to confirm the recovery email or phone no
+  if (browser.getTabIds().length > 1) {
+    // confirm recovery email option
+    if (browser.isExisting('li div[data-challengetype="12"]')) {
+      browser.click('li div[data-challengetype="12"]')
+      browser.waitForVisible('input[name=knowledgePreregisteredEmailResponse]')
+      browser.setValue('input[name=knowledgePreregisteredEmailResponse]', process.env.UPPY_GOOGLE_RECOVERY_EMAIL)
+      // confirm recovery phone number
+    } else if (browser.isExisting('#countryList')) {
+      browser.click('div#countryList')
+      browser.click('div[data-value=nl]')
+      browser.setValue('input#phoneNumberId', process.env.UPPY_GOOGLE_PHONE_NO)
+    }
+    browser.click('#next[role=button]')
+  }
 }
